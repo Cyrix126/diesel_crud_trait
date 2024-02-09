@@ -14,8 +14,13 @@ Is it better to allow closure to check/modify data in the trait or to let the de
 ## Objectives
 
 The idea is to make a way to not have to implement CRUD methods to models everytime we write a library making use of diesel.
-This library will also bring some functionnality, like optionnaly passing closure(s) with usefull parameters to check or modify data before/after the operation (depending on the method). 
-The advantage to use closures over functions is that it can use the same connection and keep a litteral trait (instead of trait\<T\> where T would be the args to pass as a tuple).
+The use of this library must be easy ofr the dev user.
+
+This library will bring some functionnality, like optionnaly passing closure with usefull parameter to check input data.
+Simpler method can be called if no check is needed.
+Maybe the derive macro could bring triggers pre/post operations.
+
+A Restful API could be generated from thoses methods, or they could be used directly in an app.
 
 ### Features:
 
@@ -27,47 +32,45 @@ Brig the derive macro to add the trait easly on your model.
 
 An implementation for Vec<T> where T: CrudAble allows to use CRUD operation in a batch way.
 
-#### List
+#### methods_on_all
 
 Add a outside of CRUD method (but still in the same trait) to list all element at once.
 
-#### Delete
-
 Add a outside of CRUD method (but still in the same trait) to delete all element at once.
 
-A Restful API could be generated from thoses methods, or they could be used directly in an app.
+## TODO
 
-## Fonctionnality
+### Fonctionnality
 
 - [ ] generic backend (sqlite only for now, mysql and postgres are planned).
-- [ ] defined methods for CRUD operations
+- [x] defined methods for CRUD operations
   - [x] create
-    - [x] possible closure to check provided data before applying operation. 
-    - [x] possible closure to modify provided data before applying operation.
-  - [ ] read
-    - [ ] possible closure to modify returned data.
-  - [ ] update
-    - [ ] possible closure to check provided data before applying operation. 
-    - [ ] possible closure to modify provided data before applying operation.
-  - [ ] delete
-    - [ ] possible closure to check provided data before applying operation. 
+  - [x] read
+  - [x] update
+  - [x] delete
+  - [x] possible closure to check provided data before applying operation. 
+- [x] add non CRUD usefull operations
+  - [x] list all
+  - [x] delete all
 - [ ] derive trait
   - [ ] retrieve table and column id of model automaticly.
   - [ ] disable method (make them return an error)
-- [ ] add non CRUD usefull operations
-  - [ ] list all
-    - [ ] possible closure to modify returned data.
-  - [ ] delete all
+  - [ ] triggers pre/post operation ?
 - [ ] implementation for Vec\<T\> for using multiples elements.
+
+### Other:
+
+- [ ] find a better solution to manage bounds
+- [ ] add tests
+- [ ] add examples
 
 ## Usage
 
 You would apply the derive macro to your model struct.
 
 ```rust,ignore
-#[derive(Insertable, QueryAble, CrudAble)]
+#[derive(Insertable, CrudAble)]
   struct Model {
-  #[diesel(skip_insertion)] // so that you can use Insertable and QueryAble on this model. You need diesel master on at least commit [a0aee2b](https://github.com/Ten0/diesel/commit/a0aee2b3e1b2d6b2246869cdc2fdac7f6dc4bcd1)
     rowid: i32,
     name: String
   }
@@ -79,7 +82,7 @@ let value = Model {
   name: String::from("whatever")
   ..Default::default()
 };
-value.create(conn, None, None);
+value.create(conn);
 ```
 You can check the data before the operation occurs.
 You can pass a Boxed FnOnce closure which takes the value and the connection and return a Result<(), ErrorCrude>.
@@ -94,7 +97,7 @@ let check = Box::new(|value: &Model, _conn: &mut SqliteConnection| {
 });
 fn check_data(value: &Model) -> Result<(), ErrorCrude> {
 }
-value.create(conn, Some(check) None);
+value.create_after_check(conn, Some(check));
 ```
 
 ## Licence
