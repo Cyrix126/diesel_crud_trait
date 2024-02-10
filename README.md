@@ -85,7 +85,7 @@ let value = Model {
 value.create(conn);
 ```
 You can check the data before the operation occurs.
-You can pass a Boxed FnOnce closure which takes the value and the connection and return a Result<(), ErrorCrude>.
+You can pass a Boxed FnMut closure which takes the value and the connection and return a Result<(), ErrorCrude>.
 
 ```rust,ignore
 let check = Box::new(|value: &Model, _conn: &mut SqliteConnection| {
