@@ -1,8 +1,19 @@
 [package]
 name = "diesel-crud-trait_derive"
-version = "0.1.0"
+version = "0.2.0"
 edition = "2021"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
+[lib]
+proc-macro = true
+
 [dependencies]
+syn = "2"
+quote = "1.0"
+proc-macro2 = "1"
+cfg-if = "1.0.0"
+[features]
+default=[]
+batch=[]
+all_methods=[]

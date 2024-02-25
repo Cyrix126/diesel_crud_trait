@@ -1,16 +1,15 @@
 [package]
 name = "diesel-crud-trait"
-version = "0.1.0"
+version = "0.2.0"
 edition = "2021"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-diesel = { git="https://github.com/diesel-rs/diesel", rev ="0ffbed6", default-features=false, features=["sqlite", "returning_clauses_for_sqlite_3_35"]}
 thiserror = "1.0.56"
-
+diesel = { git="https://github.com/diesel-rs/diesel", rev ="0ffbed6", default-features=false } 
+diesel-crud-trait_derive = {path="../diesel-crud-trait_derive", optional = true}
 [features]
-default=["derive", "methods_on_all"]
-methods_on_all=[]
-derive=[]
-batch=[]
+default=["derive"]
+derive=["diesel-crud-trait_derive"]
+all_methods=["diesel-crud-trait_derive/all_methods"]
